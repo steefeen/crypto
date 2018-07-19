@@ -1,7 +1,7 @@
-from Queue import Queue
+from queue import Queue
 import time
 from Node import Node
-
+import MUASCoin
 
 class MakeTransaction:
     threads = []

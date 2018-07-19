@@ -17,7 +17,7 @@ class Node(threading.Thread):
 
     def run(self):
 
-        print threading.currentThread().getName(), self.receive_messages
+        print(threading.currentThread().getName(), self.receive_messages)
 
         val = self.queue.get()
         for t in val:
@@ -34,7 +34,7 @@ class Node(threading.Thread):
     def do_thing_with_message(self, message):
         if self.receive_messages:
             self.unverifiedTransacton.append(message)
-            print threading.currentThread().getName(), "Received {}".format(message)
-            print threading.currentThread().getName(), ('[%s]' % ', '.join(map(str, self.unverifiedTransacton)))
+            print(threading.currentThread().getName(), "Received {}".format(message))
+            print(threading.currentThread().getName(), ('[%s]' % ', '.join(map(str, self.unverifiedTransacton))))
 
 

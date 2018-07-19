@@ -12,7 +12,7 @@ transactions = []
 def generateTransaction(fromWho, toWho, transActionNumber):
     #fromWho: list of Names
     #toWho: dictionary of Name/Value pairs
-    signatures = [nodes[x].sign("message") for x in fromWho] #ToDo: has to sign transaction from before
+    signatures = None#[nodes[x].sign("message") for x in fromWho] #ToDo: has to sign transaction from before
     previousTransaction = None
     nonce = None
     proofOfWork = None
