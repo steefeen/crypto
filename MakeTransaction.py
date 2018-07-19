@@ -45,4 +45,4 @@ class MakeTransaction:
         while True:
             message = generateTransaction([None], [{"Bob": 25}], 0, "generate")
             self.sendMessages(message)
-            time.sleep(randint(5, 10))
+            time.sleep(randint(15, 20))

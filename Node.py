@@ -64,7 +64,13 @@ class Node(threading.Thread):
         return None
 
     def checkForNewMessages(self):
-        val = self.queue.get()
+
+        while not self.queue.empty():
+            val = self.queue.get()
+            if(val != None):
+                self.do_thing_with_message(val)
+
+
 
     def findHash(self):
         i = randint(0, 9999999)
