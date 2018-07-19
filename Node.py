@@ -74,9 +74,11 @@ class Node(threading.Thread):
 
     def findHash(self):
         i = randint(0, 9999999)
-        print(i)
-        hashOfI = hashlib.sha256(i)
-        print("tried: " + str(i) + "found: " + hashOfI.hexdigest())
+        #print(i)
+        hashOfI = hashlib.sha256(str(self.transactionToWork)+ str(i))
+        print(str(self.transactionToWork))
+        #print("tried: " + str(i) + "found: " + hashOfI.hexdigest())
         if(hashOfI.hexdigest()[0:4] == "0000"):
+            print("tried: " + str(i) + "found: " + hashOfI.hexdigest())
             print("successful!")
 
