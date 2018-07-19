@@ -52,6 +52,8 @@ class Node(threading.Thread):
         while True:
             self.checkForNewMessages()
             self.transactionToWork = self.getRandomTransaction()
+            if(self.transactionToWork != None):
+                self.findHash()
 
     def getRandomTransaction(self):
         if(len(self.unverifiedTransacton)>0):
@@ -61,3 +63,5 @@ class Node(threading.Thread):
 
     def checkForNewMessages(self):
         val = self.queue.get()
+
+    def findHash(self):
