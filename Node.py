@@ -12,6 +12,9 @@ class Node(threading.Thread):
         self.unverifiedTransacton = []
         self.allThreads = []
 
+
+
+
     def run(self):
 
         print threading.currentThread().getName(), self.receive_messages
