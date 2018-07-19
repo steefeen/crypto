@@ -1,43 +1,49 @@
 from queue import Queue
 import time
 from Node import Node
-import MUASCoin
+from MUASCoin import generateTransaction
+from random import randint
 
 class MakeTransaction:
     threads = []
-    transaction = {'a': 1}
 
     def __init__(self):
 
-        for t in range(1):
-            q = Queue()
-            self.threads.append(Node(q, args=(True,)))
-            self.threads[t].start()
-            time.sleep(0.1)
+        self.createThreads(1)
 
+        self.distributeThreads()
+
+        message = generateTransaction(["Alice"],{"Bob": 25},0)
+
+        self.sendMessages(message)
+
+        self.generateRandomTransactions()
+
+
+        for t in self.threads:
+            t.join()
+
+    def distributeThreads(self):
         time.sleep(1)
         for t in self.threads:
             t.queue.put(self.threads)
             time.sleep(0.3)
 
+    def createThreads(self, number):
+        for t in range(number):
+            q = Queue()
+            self.threads.append(Node(q, args=(True,)))
+            self.threads[t].start()
+            time.sleep(0.1)
+
+    def sendMessages(self, message):
         time.sleep(1)
         for t in self.threads:
-            t.queue.put(self.transaction)
+            t.queue.put(message)
             time.sleep(0.3)
 
-        time.sleep(2)
-        newTransaction = {'a' : 1}
-        for t in self.threads:
-            t.queue.put(newTransaction)
-            time.sleep(0.3)
-
-        time.sleep(2)
-        newTransaction = {'a' : 2}
-        for t in self.threads:
-            t.queue.put(newTransaction)
-            time.sleep(0.3)
-
-
-
-        for t in self.threads:
-            t.join()
+    def generateRandomTransactions(self):
+        while True:
+            message = generateTransaction(["Alice"],{"Bob": 25},0)
+            self.sendMessages(message)
+            time.sleep(randint(5, 10))
