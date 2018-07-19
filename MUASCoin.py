@@ -9,20 +9,17 @@ for element in persons:
 
 transactions = []
 
-def generateTransaction(fromWho, toWho, transActionNumber):
+def generateTransaction(fromWho, toWho, transActionNumber, type):
     #fromWho: list of Names
     #toWho: dictionary of Name/Value pairs
     signatures = None#[nodes[x].sign("message") for x in fromWho] #ToDo: has to sign transaction from before
     previousTransaction = None
     nonce = None
     proofOfWork = None
-    return {"transActionNumber": transActionNumber,
-            "type": None,
+    return {"transActionNumber": transActionNumber, #ToDo: has to be a hash
+            "type": type,
             "signatures": signatures,
             "previousTransaction": previousTransaction,
             "output": toWho,
             "nonce": nonce,
             "proofOfWork": proofOfWork}
-
-print(generateTransaction(["Alice"],{"Bob": 25},0))
-print(generateTransaction([], {},1))
