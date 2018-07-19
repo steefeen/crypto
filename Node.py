@@ -1,5 +1,7 @@
 import threading
+import hashlib
 import time
+import json
 from random import randint
 
 class Node(threading.Thread):
@@ -65,3 +67,10 @@ class Node(threading.Thread):
         val = self.queue.get()
 
     def findHash(self):
+        i = randint(0, 9999999)
+        print(i)
+        hashOfI = hashlib.sha256(i)
+        print("tried: " + str(i) + "found: " + hashOfI.hexdigest())
+        if(hashOfI.hexdigest()[0:4] == "0000"):
+            print("successful!")
+
