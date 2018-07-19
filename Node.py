@@ -36,5 +36,3 @@ class Node(threading.Thread):
             self.unverifiedTransacton.append(message)
             print threading.currentThread().getName(), "Received {}".format(message)
             print threading.currentThread().getName(), ('[%s]' % ', '.join(map(str, self.unverifiedTransacton)))
-
-
