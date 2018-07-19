@@ -50,6 +50,7 @@ class Node(threading.Thread):
 
     def work(self):
         while True:
+
             self.checkForNewMessages()
             self.transactionToWork = self.getRandomTransaction()
             if(self.transactionToWork != None):
@@ -62,6 +63,14 @@ class Node(threading.Thread):
         return None
 
     def checkForNewMessages(self):
-        val = self.queue.get()
+
+        while not self.queue.empty():
+            val = self.queue.get()
+            if(val != None):
+                self.do_thing_with_message(val)
+
+
 
     def findHash(self):
+
+        print("notfound")
