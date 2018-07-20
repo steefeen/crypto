@@ -3,20 +3,21 @@ import threading
 import hashlib
 import time
 from random import randint
+from MUASCoin import generateBlock
 
 class Node(threading.Thread):
 
-    def __init__(self, queue, args=()):
+    def __init__(self, queue, blockChain ,args=()):
         threading.Thread.__init__(self, args=(), kwargs=None)
         self.queue = queue
         self.daemon = True
         self.receive_messages = args[0]
+        self.startTransactions = args[1]
         self.unverifiedTransacton = []
         self.allThreads = []
-
-
-
-
+        self.blockChain = {blockChain.get("transaction").get("transActionNumber") : blockChain}
+        self.lastBlock = blockChain.get("transaction").get("transActionNumber")
+        print(self.blockChain)
     def run(self):
 
         print(threading.currentThread().getName(), self.receive_messages)
@@ -87,8 +88,53 @@ class Node(threading.Thread):
             print("successful!")
             self.foundHash(i)
 
-    def foundHash(self,nonce):
-        hashOfI = hashlib.sha256(str(self.transactionToWork)+ str(nonce))
-        print("tried: " + str(nonce) + "found: " + hashOfI.hexdigest())
-        print(nonce)
+    def foundHash(self, nonce):
+
+
+        generatedBlock = generateBlock(self.transactionToWork, nonce, self.lastBlock)
+        self.lastBlock = self.transactionToWork.get("transActionNumber")
+        self.blockChain[generatedBlock.get("transaction").get("transActionNumber")] = generatedBlock
+        print(self.blockChain)
         self.unverifiedTransacton.pop(0)
+
+        # {'d316e4b1d0eb616873e40d7e751f13167677cefe99b55bff3caca46d1a1bc6d9': {'nounce': 48034001894148745,
+        #                                                                       'previousBlock': '5b7e4c88a98a731a10f30ec294cae0790d90878db0b1ba686a4389647be0ee89',
+        #                                                                       'transaction': {'output': [{'Bob': 27}],
+        #                                                                                       'transActionNumber': 'd316e4b1d0eb616873e40d7e751f13167677cefe99b55bff3caca46d1a1bc6d9',
+        #                                                                                       'signatures': None,
+        #                                                                                       'type': 'generate',
+        #                                                                                       'input': [None]}},
+        #  'db38787f7508a45fcfa87153ee454a55e1b31115e4e891e427eb9bce50605da2': {'nounce': 658971777253565240,
+        #                                                                       'previousBlock': '1ef2a2c90feeafd54a89200e89b22b2b01901c23af5c4ba32254ebc11f851340',
+        #                                                                       'transaction': {'output': [{'Bob': 25}],
+        #                                                                                       'transActionNumber': 'db38787f7508a45fcfa87153ee454a55e1b31115e4e891e427eb9bce50605da2',
+        #                                                                                       'signatures': None,
+        #                                                                                       'type': 'generate',
+        #                                                                                       'input': [None]}},
+        #  '1ef2a2c90feeafd54a89200e89b22b2b01901c23af5c4ba32254ebc11f851340': {'nounce': 0, 'previousBlock': 0,
+        #                                                                       'transaction': {'output': [{'Bob': 24}],
+        #                                                                                       'transActionNumber': '1ef2a2c90feeafd54a89200e89b22b2b01901c23af5c4ba32254ebc11f851340',
+        #                                                                                       'signatures': None,
+        #                                                                                       'type': 'generate',
+        #                                                                                       'input': [None]}},
+        #  '5b7e4c88a98a731a10f30ec294cae0790d90878db0b1ba686a4389647be0ee89': {'nounce': 373632305728762512,
+        #                                                                       'previousBlock': 'db38787f7508a45fcfa87153ee454a55e1b31115e4e891e427eb9bce50605da2',
+        #                                                                       'transaction': {'output': [{'Bob': 26}],
+        #                                                                                       'transActionNumber': '5b7e4c88a98a731a10f30ec294cae0790d90878db0b1ba686a4389647be0ee89',
+        #                                                                                       'signatures': None,
+        #                                                                                       'type': 'generate',
+        #                                                                                       'input': [None]}},
+        #  '69c810c2ac5f1b4e79e8e89f6418710c4a8fc491adaeb930278dc2922fe79b7b': {'nounce': 3065130957103389172,
+        #                                                                       'previousBlock': 'd316e4b1d0eb616873e40d7e751f13167677cefe99b55bff3caca46d1a1bc6d9',
+        #                                                                       'transaction': {'output': [{'Bob': 28}],
+        #                                                                                       'transActionNumber': '69c810c2ac5f1b4e79e8e89f6418710c4a8fc491adaeb930278dc2922fe79b7b',
+        #                                                                                       'signatures': None,
+        #                                                                                       'type': 'generate',
+        #                                                                                       'input': [None]}},
+        #  '0d5d331bc6338393b676830b5d0aa4ea13db619ed381b153072c6b4aec0de9ce': {'nounce': 576752414274413228,
+        #                                                                       'previousBlock': '69c810c2ac5f1b4e79e8e89f6418710c4a8fc491adaeb930278dc2922fe79b7b',
+        #                                                                       'transaction': {'output': [{'Bob': 29}],
+        #                                                                                       'transActionNumber': '0d5d331bc6338393b676830b5d0aa4ea13db619ed381b153072c6b4aec0de9ce',
+        #                                                                                       'signatures': None,
+        #                                                                                       'type': 'generate',
+        #                                                                                       'input': [None]}}}
