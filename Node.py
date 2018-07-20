@@ -1,7 +1,7 @@
+import sys
 import threading
 import hashlib
 import time
-import json
 from random import randint
 
 class Node(threading.Thread):
@@ -58,10 +58,14 @@ class Node(threading.Thread):
                 self.findHash()
 
     def getRandomTransaction(self):
-        if(len(self.unverifiedTransacton)>0):
-            number = randint(0, len(self.unverifiedTransacton)-1)
-            return self.unverifiedTransacton[number]
-        return None
+        if (len(self.unverifiedTransacton) > 0):
+            return self.unverifiedTransacton[0]
+        else:
+            return None
+        # if(len(self.unverifiedTransacton)>0):
+        #     number = randint(0, len(self.unverifiedTransacton)-1)
+        #     return self.unverifiedTransacton[number]
+        # return None
 
     def checkForNewMessages(self):
 
@@ -73,12 +77,18 @@ class Node(threading.Thread):
 
 
     def findHash(self):
-        i = randint(0, 9999999)
+        i = randint(0, sys.maxint)
         #print(i)
         hashOfI = hashlib.sha256(str(self.transactionToWork)+ str(i))
-        print(str(self.transactionToWork))
+        #print(str(self.transactionToWork))
         #print("tried: " + str(i) + "found: " + hashOfI.hexdigest())
-        if(hashOfI.hexdigest()[0:4] == "0000"):
+        if(hashOfI.hexdigest()[0:5] == "00000"):
             print("tried: " + str(i) + "found: " + hashOfI.hexdigest())
             print("successful!")
+            self.foundHash(i)
 
+    def foundHash(self,nonce):
+        hashOfI = hashlib.sha256(str(self.transactionToWork)+ str(nonce))
+        print("tried: " + str(nonce) + "found: " + hashOfI.hexdigest())
+        print(nonce)
+        self.unverifiedTransacton.pop(0)

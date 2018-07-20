@@ -1,4 +1,4 @@
-from queue import Queue
+from Queue import Queue
 import time
 from Node import Node
 from MUASCoin import generateTransaction
@@ -9,7 +9,7 @@ class MakeTransaction:
 
     def __init__(self):
 
-        self.createThreads(1)
+        self.createThreads(4)
 
         self.distributeThreads()
 
@@ -42,7 +42,9 @@ class MakeTransaction:
             time.sleep(0.3)
 
     def generateRandomTransactions(self):
+        number = 1
         while True:
-            message = generateTransaction([None], [{"Bob": 25}], 0, "generate")
+            message = generateTransaction([None], [{"Bob": 25}], number, "generate")
             self.sendMessages(message)
-            time.sleep(randint(15, 20))
+            number += 1
+            time.sleep(randint(10, 20))
