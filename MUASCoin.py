@@ -1,21 +1,17 @@
 import hashlib
-
-import ecdsa
+from person import person
 
 #every node has a name and a secret key for signing
-persons = ["Alice", "Bob", "Carol", "Doris", "Eve"]
-nodes = {}
 
-for element in persons:
-    nodes.update({element: ecdsa.SigningKey.generate(curve=ecdsa.SECP256k1)})
 
-transactions = []
 
-def generateTransaction(fromWho, toWho, transActionNumber, type):
+def generateTransaction(fromWho, toWho, type):
     #fromWho: list of Names
     #toWho: dictionary of Name/Value pairs
-    signatures = None#[nodes[x].sign("message") for x in fromWho] #ToDo: has to sign transaction from before
+    signatures = {}#[nodes[x].sign("message") for x in fromWho] #ToDo: has to sign transaction from before
     transActionNumber = makeHash(fromWho, toWho)
+    for p in toWho:
+            signatures[p[0].getName()] = p[0].sign(transActionNumber)
     return {"transActionNumber": transActionNumber,
             "type": type,
             "signatures": signatures,

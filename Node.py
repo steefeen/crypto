@@ -3,6 +3,9 @@ import threading
 import hashlib
 import time
 from random import randint
+
+from ecdsa import BadSignatureError
+
 from MUASCoin import generateBlock
 
 class Node(threading.Thread):
@@ -17,7 +20,8 @@ class Node(threading.Thread):
         self.allThreads = []
         self.blockChain = {blockChain.get("transaction").get("transActionNumber") : blockChain}
         self.lastBlock = blockChain.get("transaction").get("transActionNumber")
-        print(self.blockChain)
+        print("blockchain:" + str(self.blockChain))
+
     def run(self):
 
         print(threading.currentThread().getName(), self.receive_messages)
@@ -31,8 +35,7 @@ class Node(threading.Thread):
     def do_thing_with_message(self, message):
         if self.receive_messages:
             self.unverifiedTransacton.append(message)
-            print(threading.currentThread().getName(), "Received {}".format(message))
-            print(threading.currentThread().getName(), ('[%s]' % ', '.join(map(str, self.unverifiedTransacton))))
+            print("unverified: " , threading.currentThread().getName(), ('[%s]' % ', '.join(map(str, self.unverifiedTransacton))))
 
     def reciveThreads(self):
         val = self.queue.get()
@@ -60,7 +63,10 @@ class Node(threading.Thread):
 
     def getRandomTransaction(self):
         if (len(self.unverifiedTransacton) > 0):
-            return self.unverifiedTransacton[0]
+            if self.verifvTransaction():
+                return self.unverifiedTransacton[0]
+            else:
+                return None
         else:
             return None
         # if(len(self.unverifiedTransacton)>0):
@@ -79,13 +85,12 @@ class Node(threading.Thread):
 
     def findHash(self):
         i = randint(0, sys.maxint)
-        #print(i)
+
         hashOfI = hashlib.sha256(str(self.transactionToWork)+ str(i))
-        #print(str(self.transactionToWork))
-        #print("tried: " + str(i) + "found: " + hashOfI.hexdigest())
+
         if(hashOfI.hexdigest()[0:5] == "00000"):
-            print("tried: " + str(i) + "found: " + hashOfI.hexdigest())
-            print("successful!")
+            print("tried: " + str(i) + "   found: " + hashOfI.hexdigest())
+
             self.foundHash(i)
 
     def foundHash(self, nonce):
@@ -94,47 +99,22 @@ class Node(threading.Thread):
         generatedBlock = generateBlock(self.transactionToWork, nonce, self.lastBlock)
         self.lastBlock = self.transactionToWork.get("transActionNumber")
         self.blockChain[generatedBlock.get("transaction").get("transActionNumber")] = generatedBlock
-        print(self.blockChain)
+        print("blockchain:" + str(self.blockChain))
         self.unverifiedTransacton.pop(0)
 
-        # {'d316e4b1d0eb616873e40d7e751f13167677cefe99b55bff3caca46d1a1bc6d9': {'nounce': 48034001894148745,
-        #                                                                       'previousBlock': '5b7e4c88a98a731a10f30ec294cae0790d90878db0b1ba686a4389647be0ee89',
-        #                                                                       'transaction': {'output': [{'Bob': 27}],
-        #                                                                                       'transActionNumber': 'd316e4b1d0eb616873e40d7e751f13167677cefe99b55bff3caca46d1a1bc6d9',
-        #                                                                                       'signatures': None,
-        #                                                                                       'type': 'generate',
-        #                                                                                       'input': [None]}},
-        #  'db38787f7508a45fcfa87153ee454a55e1b31115e4e891e427eb9bce50605da2': {'nounce': 658971777253565240,
-        #                                                                       'previousBlock': '1ef2a2c90feeafd54a89200e89b22b2b01901c23af5c4ba32254ebc11f851340',
-        #                                                                       'transaction': {'output': [{'Bob': 25}],
-        #                                                                                       'transActionNumber': 'db38787f7508a45fcfa87153ee454a55e1b31115e4e891e427eb9bce50605da2',
-        #                                                                                       'signatures': None,
-        #                                                                                       'type': 'generate',
-        #                                                                                       'input': [None]}},
-        #  '1ef2a2c90feeafd54a89200e89b22b2b01901c23af5c4ba32254ebc11f851340': {'nounce': 0, 'previousBlock': 0,
-        #                                                                       'transaction': {'output': [{'Bob': 24}],
-        #                                                                                       'transActionNumber': '1ef2a2c90feeafd54a89200e89b22b2b01901c23af5c4ba32254ebc11f851340',
-        #                                                                                       'signatures': None,
-        #                                                                                       'type': 'generate',
-        #                                                                                       'input': [None]}},
-        #  '5b7e4c88a98a731a10f30ec294cae0790d90878db0b1ba686a4389647be0ee89': {'nounce': 373632305728762512,
-        #                                                                       'previousBlock': 'db38787f7508a45fcfa87153ee454a55e1b31115e4e891e427eb9bce50605da2',
-        #                                                                       'transaction': {'output': [{'Bob': 26}],
-        #                                                                                       'transActionNumber': '5b7e4c88a98a731a10f30ec294cae0790d90878db0b1ba686a4389647be0ee89',
-        #                                                                                       'signatures': None,
-        #                                                                                       'type': 'generate',
-        #                                                                                       'input': [None]}},
-        #  '69c810c2ac5f1b4e79e8e89f6418710c4a8fc491adaeb930278dc2922fe79b7b': {'nounce': 3065130957103389172,
-        #                                                                       'previousBlock': 'd316e4b1d0eb616873e40d7e751f13167677cefe99b55bff3caca46d1a1bc6d9',
-        #                                                                       'transaction': {'output': [{'Bob': 28}],
-        #                                                                                       'transActionNumber': '69c810c2ac5f1b4e79e8e89f6418710c4a8fc491adaeb930278dc2922fe79b7b',
-        #                                                                                       'signatures': None,
-        #                                                                                       'type': 'generate',
-        #                                                                                       'input': [None]}},
-        #  '0d5d331bc6338393b676830b5d0aa4ea13db619ed381b153072c6b4aec0de9ce': {'nounce': 576752414274413228,
-        #                                                                       'previousBlock': '69c810c2ac5f1b4e79e8e89f6418710c4a8fc491adaeb930278dc2922fe79b7b',
-        #                                                                       'transaction': {'output': [{'Bob': 29}],
-        #                                                                                       'transActionNumber': '0d5d331bc6338393b676830b5d0aa4ea13db619ed381b153072c6b4aec0de9ce',
-        #                                                                                       'signatures': None,
-        #                                                                                       'type': 'generate',
-        #                                                                                       'input': [None]}}}
+    def verifvTransaction(self):
+        transaction = self.unverifiedTransacton[0]
+        for out in transaction.get("output"):
+            name = out[0].getName()
+            signature = transaction.get("signatures")[name]
+            message = transaction.get("transActionNumber")
+            try:
+                out[0].verify(signature, message)
+            except BadSignatureError:
+                return False
+        return True
+
+# blockchain:{
+#     '057c48e453d850ffc3d8abb7b080ba12b01e3651c90c580b3e905f8c6afb9612': {'nounce': 8311886965351671661, 'previousBlock': 'cad27f8b2d5504ae65f18b595523b9c44708ed6e9ce0740d3434b8487da59274', 'transaction': {'output': [(<person.person instance at 0x10b6cc488>, 25)], 'transActionNumber': '057c48e453d850ffc3d8abb7b080ba12b01e3651c90c580b3e905f8c6afb9612', 'signatures': {'Alice': 'N\x116\x8f\xd9\x95\x9e#Cz\xd6"\x82E\x1e\xe15U$\xe7\x15p0\x94\x1f\xed\xed\xb6\x1f\xda\n\xbfJb\x9c\xc4\xdf\x1f\x02H\x0b\x8e[\x17i\x01\x9f\x8e'}, 'type': 'generate', 'input': [('0150ede729f30b7808b0c0e966bfb9f48018b27ab5519a52a854f28f80f2942a', 0)]}},
+#     '117692278fa0a46b1cee3d39b41f8ec8f8c2e65318e64f07d275002268d6ec84': {'nounce': 0, 'previousBlock': 0, 'transaction': {'output': [(<person.person instance at 0x10b6cc488>, 25)], 'transActionNumber': '117692278fa0a46b1cee3d39b41f8ec8f8c2e65318e64f07d275002268d6ec84', 'signatures': {'Alice': ',\xc2\x8b\xa01\x90\x08\x1f>\x83\xeb\x95-\xef\x8a\x91\xde\xac\xa5b\xc7u\xf0\x00a%\xa9qr\x19\xaa#d\x96\xfaaG\xc0X\xe9\x1bDc\xb0J\xaa\xcf\xd4'}, 'type': 'generate', 'input': [None]}},
+#     'cad27f8b2d5504ae65f18b595523b9c44708ed6e9ce0740d3434b8487da59274': {'nounce': 4399116236312888907, 'previousBlock': '117692278fa0a46b1cee3d39b41f8ec8f8c2e65318e64f07d275002268d6ec84', 'transaction': {'output': [(<person.person instance at 0x10b6cc488>, 25)], 'transActionNumber': 'cad27f8b2d5504ae65f18b595523b9c44708ed6e9ce0740d3434b8487da59274', 'signatures': {'Alice': 'G5&#\x0c\xfcqFtu$d\xe8\xd6\xc20\xaeb\xb4\xa9\xea)\x98\x91\x82,\xd7\x9d\xd9\xe6\xa0\x7fy~\xdb\xf4%\x97\x02\t\xf4\x81\x1c\xc1\xb6\xbf\xce\x8d'}, 'type': 'generate', 'input': [('db38787f7508a45fcfa87153ee454a55e1b31115e4e891e427eb9bce50605da2', 0)]}}}
