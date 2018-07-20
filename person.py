@@ -6,10 +6,10 @@ class person:
 
     def __init__(self, name):
         self.name = name
-        self.sk = SigningKey.generate()  # uses NIST192p
+        self.sk = SigningKey.generate()
         self.vk = self.sk.get_verifying_key()
         signature = self.sk.sign("message")
-        print(self.vk.verify(signature, "message"))
+        self.vk.verify(signature, "message")
 
     def getName(self):
         return self.name

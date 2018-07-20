@@ -20,6 +20,7 @@ class Node(threading.Thread):
         self.allThreads = []
         self.blockChain = {blockChain.get("transaction").get("transActionNumber") : blockChain}
         self.lastBlock = blockChain.get("transaction").get("transActionNumber")
+        self.transactionToWorkIsVerifiyed = False
         print("blockchain:" + str(self.blockChain))
 
     def run(self):
@@ -68,6 +69,7 @@ class Node(threading.Thread):
             else:
                 return None
         else:
+            time.sleep(2)
             return None
         # if(len(self.unverifiedTransacton)>0):
         #     number = randint(0, len(self.unverifiedTransacton)-1)
@@ -87,8 +89,8 @@ class Node(threading.Thread):
         i = randint(0, sys.maxint)
 
         hashOfI = hashlib.sha256(str(self.transactionToWork)+ str(i))
-
-        if(hashOfI.hexdigest()[0:5] == "00000"):
+        #print(hashOfI.hexdigest())
+        if(hashOfI.hexdigest()[0:4] == "0000"):
             print("tried: " + str(i) + "   found: " + hashOfI.hexdigest())
 
             self.foundHash(i)
@@ -101,17 +103,21 @@ class Node(threading.Thread):
         self.blockChain[generatedBlock.get("transaction").get("transActionNumber")] = generatedBlock
         print("blockchain:" + str(self.blockChain))
         self.unverifiedTransacton.pop(0)
+        self.transactionToWorkIsVerifiyed = False
 
     def verifvTransaction(self):
-        transaction = self.unverifiedTransacton[0]
-        for out in transaction.get("output"):
-            name = out[0].getName()
-            signature = transaction.get("signatures")[name]
-            message = transaction.get("transActionNumber")
-            try:
-                out[0].verify(signature, message)
-            except BadSignatureError:
-                return False
+        if not self.transactionToWorkIsVerifiyed:
+            transaction = self.unverifiedTransacton[0]
+            for out in transaction.get("output"):
+                name = out[0].getName()
+                signature = transaction.get("signatures")[name]
+                message = transaction.get("transActionNumber")
+                try:
+                    out[0].verify(signature, message)
+                except BadSignatureError:
+                    self.unverifiedTransacton.pop(0)
+                    return False
+            self.transactionToWorkIsVerifiyed = True
         return True
 
 # blockchain:{
