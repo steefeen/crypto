@@ -1,21 +1,27 @@
+import sys
 import threading
 import hashlib
 import time
-import json
 from random import randint
+
+from ecdsa import BadSignatureError
+
+from MUASCoin import generateBlock
 
 class Node(threading.Thread):
 
-    def __init__(self, queue, args=()):
+    def __init__(self, queue, blockChain, difficulty, args=()):
         threading.Thread.__init__(self, args=(), kwargs=None)
         self.queue = queue
         self.daemon = True
+        self.difficulty = difficulty
         self.receive_messages = args[0]
+        self.startTransactions = args[1]
         self.unverifiedTransacton = []
         self.allThreads = []
-
-
-
+        self.blockChain = blockChain
+        self.transactionToWorkIsVerifiyed = False
+        print("blockchain:" + str(self.blockChain))
 
     def run(self):
 
@@ -27,11 +33,15 @@ class Node(threading.Thread):
 
         self.work()
 
-    def do_thing_with_message(self, message):
+    def gotNewTransaction(self, message):
         if self.receive_messages:
+            message = message.get("message")
             self.unverifiedTransacton.append(message)
-            print(threading.currentThread().getName(), "Received {}".format(message))
-            print(threading.currentThread().getName(), ('[%s]' % ', '.join(map(str, self.unverifiedTransacton))))
+            print("unverified: ", threading.currentThread().getName(), ('[%s]' % ', '.join(map(str, self.unverifiedTransacton))))
+
+    def gotNewBlock(self, newBlock):
+        print ("newBlock")
+        return True
 
     def reciveThreads(self):
         val = self.queue.get()
@@ -47,7 +57,7 @@ class Node(threading.Thread):
             time.sleep(1)
             val = self.queue.get()
             if(val != None):
-                self.do_thing_with_message(val)
+                self.gotNewTransaction(val)
                 income = False
 
     def work(self):
@@ -58,25 +68,107 @@ class Node(threading.Thread):
                 self.findHash()
 
     def getRandomTransaction(self):
-        if(len(self.unverifiedTransacton)>0):
-            number = randint(0, len(self.unverifiedTransacton)-1)
-            return self.unverifiedTransacton[number]
-        return None
+        if (len(self.unverifiedTransacton) > 0):
+            if self.verifyTransaction():
+                return self.unverifiedTransacton[0]
+            else:
+                return None
+        else:
+            print(threading.currentThread().getName(), "no more transactions")
+            time.sleep(5)
+            return None
+        # if(len(self.unverifiedTransacton)>0):
+        #     number = randint(0, len(self.unverifiedTransacton)-1)
+        #     return self.unverifiedTransacton[number]
+        # return None
 
     def checkForNewMessages(self):
 
         while not self.queue.empty():
             val = self.queue.get()
             if(val != None):
-                self.do_thing_with_message(val)
-
+                messageTyp = val.get("messageType")
+                if(messageTyp == "newTransaction"):
+                    self.gotNewTransaction(val)
+                elif(messageTyp == "newBlock"):
+                    self.gotNewBlock(val)
 
 
     def findHash(self):
-        i = randint(0, 9999999)
-        print(i)
-        hashOfI = hashlib.sha256(i)
-        print("tried: " + str(i) + "found: " + hashOfI.hexdigest())
-        if(hashOfI.hexdigest()[0:4] == "0000"):
-            print("successful!")
+        i = randint(0, sys.maxint)
+
+        hashOfI = hashlib.sha256(str(self.transactionToWork) + str(i))
+        #print(hashOfI.hexdigest())
+        difficultyString = "0"
+        index = 0
+        while index < self.difficulty:
+            difficultyString += "0"
+            index += 1
+        if hashOfI.hexdigest()[0 : self.difficulty] == difficultyString:
+            print("tried: " + str(i) + "   found: " + hashOfI.hexdigest())
+
+            self.foundHash(i)
+
+    def foundHash(self, nonce):
+        generatedBlock = generateBlock(self.transactionToWork, nonce)
+        self.lastBlock = self.transactionToWork.get("transAction")
+        self.blockChain.append(generatedBlock)
+
+        self.distributeNewBlock(generatedBlock)
+        print("blockchain:" + str(self.blockChain))
+        self.unverifiedTransacton.pop(0)
+        self.transactionToWorkIsVerifiyed = False
+
+    def verifyTransaction(self):
+        if not self.transactionToWorkIsVerifiyed:
+            transactionIsRight = self.verifyTransactionSignature() and self.verifyTransationMoney() and self.verifyNoDoubleSpending()
+            self.transactionToWorkIsVerifiyed = transactionIsRight
+            if not transactionIsRight:
+                self.unverifiedTransacton.pop(0)
+                print(self.unverifiedTransacton)
+            return transactionIsRight
+        return True
+
+    def verifyTransactionSignature(self):
+        transaction = self.unverifiedTransacton[0]
+        for out in transaction.get("output"):
+            name = out[0].getName()
+            signature = transaction.get("signatures")[name]
+            message = transaction.get("HashOfTransaction")
+            try:
+                out[0].verify(signature, message)
+            except BadSignatureError:
+                return False
+        return True
+
+    def verifyTransationMoney(self):
+        print( "to Verify: " + str(self.unverifiedTransacton[0]))
+        #print(self.transactionToWork)
+        previousInputs = self.unverifiedTransacton[0].get("input")
+        outputs = self.unverifiedTransacton[0].get("output")
+        sumOfOutputs = sum([element[1] for element in outputs])  # adds all the money in the outputs together
+
+        # sum of values of specified output in specified block
+        try:
+            sumOfInPuts = sum([self.blockChain[element[0]].get("transaction").get("output")[element[1]][1] for element in previousInputs])
+        except IndexError:
+            return False
+        print(sumOfInPuts, sumOfOutputs)
+
+        return sumOfInPuts == sumOfOutputs
+
+    def distributeNewBlock(self, newBlock):
+        for t in self.allThreads:
+            t.queue.put({"messageType": "newBlock", "message": newBlock})
+    def verifyNoDoubleSpending(self):
+        inputsToVerify = self.unverifiedTransacton[0].get("input")
+        # check if input was already used in blockchain
+        for inputToVerify in inputsToVerify:
+            for block in self.blockChain:
+                for previousInput in block.get("transaction").get("input"):
+                    if previousInput == inputToVerify:
+                        return False
+        # check if same input is used twice
+        return len(inputsToVerify) == len(set(inputsToVerify))
+
 

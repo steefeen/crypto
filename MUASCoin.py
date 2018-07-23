@@ -1,21 +1,36 @@
-import ecdsa
+import hashlib
+from person import person
 
 #every node has a name and a secret key for signing
-persons = ["Alice", "Bob", "Carol", "Doris", "Eve"]
-nodes = {}
 
-for element in persons:
-    nodes.update({element: ecdsa.SigningKey.generate(curve=ecdsa.SECP256k1)})
 
-transactions = []
 
-def generateTransaction(fromWho, toWho, transActionNumber, type):
+def generateTransaction(fromWho, toWho, type):
     #fromWho: list of Names
     #toWho: dictionary of Name/Value pairs
-    signatures = None#[nodes[x].sign("message") for x in fromWho] #ToDo: has to sign transaction from before
-    previousTransaction = None
-    return {"transActionNumber": transActionNumber, #ToDo: has to be a hash
+    signatures = {}#[nodes[x].sign("message") for x in fromWho] #ToDo: has to sign transaction from before
+    HashOfTransaction = makeHash(fromWho, toWho)
+    for p in toWho:
+            signatures[p[0].getName()] = p[0].sign(HashOfTransaction)
+    return {"HashOfTransaction": HashOfTransaction,
             "type": type,
             "signatures": signatures,
-            "previousTransaction": previousTransaction,
-            "output": toWho}
+            "output": toWho,
+            "input": fromWho}
+
+def makeHash(input, output):
+    inputString = ""
+    outputString = ""
+    if input[0] != None:
+        inputString = str(input)
+    if output[0] != None:
+        outputString = str(output)
+    return hashlib.sha256(inputString + outputString).hexdigest()
+
+def generateBlock(transaction, nounce):
+
+    block = {
+        "nounce": nounce,
+        "transaction": transaction
+    }
+    return block
