@@ -128,6 +128,13 @@ class Node(threading.Thread):
     def verifyTransationMoney(self):
         print( "to Verify: " + str(self.unverifiedTransacton[0]))
         #print(self.transactionToWork)
-        return False
+        previousInputs = self.unverifiedTransacton[0].get("input")
+        outputs = self.unverifiedTransacton[0].get("output")
+        sumOfOutputs = sum([element[1] for element in outputs])  # adds all the money in the outputs together
+
+        # sum of values of specified output in specified block
+        sumOfInPuts = sum([self.blockChain[element[0]].get("transaction").get("output")[element[1]][1] for element in previousInputs])
+        print(sumOfInPuts, sumOfOutputs)
+        return sumOfInPuts == sumOfOutputs
 
 

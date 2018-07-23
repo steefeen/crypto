@@ -17,7 +17,7 @@ class MakeTransaction:
 
         self.distributeThreads()
 
-        message = generateTransaction([(0, 0)], [(self.persons[0], 25)], "generate")
+        message = generateTransaction([(0, 0), (0, 0)], [(self.persons[0], 25), (self.persons[1], 10)], "generate")
 
         self.sendMessages(message)
 
@@ -54,7 +54,3 @@ class MakeTransaction:
         message = generateTransaction([(1, 0)], [(self.persons[0], 25)], "generate")
         self.sendMessages(message)
         time.sleep(randint(10, 20))
-
-# {'db38787f7508a45fcfa87153ee454a55e1b31115e4e891e427eb9bce50605da2': {'nounce': 0, 'previousBlock': 0, 'transaction': {'output': [{'Bob': 25}], 'transActionNumber': 'db38787f7508a45fcfa87153ee454a55e1b31115e4e891e427eb9bce50605da2', 'signatures': None, 'type': 'generate', 'input': [None]}},
-#  '5127bca0d990fe924886bb81a6eedc8eac6038c00cf9eedb6207cb45e5575474': {'nounce': 9153864084616655301, 'previousBlock': '0150ede729f30b7808b0c0e966bfb9f48018b27ab5519a52a854f28f80f2942a', 'transaction': {'output': [('Bob', 25)], 'transActionNumber': '5127bca0d990fe924886bb81a6eedc8eac6038c00cf9eedb6207cb45e5575474', 'signatures': None, 'type': 'generate', 'input': [('0150ede729f30b7808b0c0e966bfb9f48018b27ab5519a52a854f28f80f2942a', 0)]}},
-#  '0150ede729f30b7808b0c0e966bfb9f48018b27ab5519a52a854f28f80f2942a': {'nounce': 5938097406838539746, 'previousBlock': 'db38787f7508a45fcfa87153ee454a55e1b31115e4e891e427eb9bce50605da2', 'transaction': {'output': [('Bob', 25)], 'transActionNumber': '0150ede729f30b7808b0c0e966bfb9f48018b27ab5519a52a854f28f80f2942a', 'signatures': None, 'type': 'generate', 'input': [('db38787f7508a45fcfa87153ee454a55e1b31115e4e891e427eb9bce50605da2', 0)]}}}
