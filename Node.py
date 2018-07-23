@@ -64,7 +64,7 @@ class Node(threading.Thread):
 
     def getRandomTransaction(self):
         if (len(self.unverifiedTransacton) > 0):
-            if self.verifvTransaction():
+            if self.verifyTransaction():
                 return self.unverifiedTransacton[0]
             else:
                 return None
@@ -96,8 +96,6 @@ class Node(threading.Thread):
             self.foundHash(i)
 
     def foundHash(self, nonce):
-
-
         generatedBlock = generateBlock(self.transactionToWork, nonce, self.lastBlock)
         self.lastBlock = self.transactionToWork.get("transActionNumber")
         self.blockChain[generatedBlock.get("transaction").get("transActionNumber")] = generatedBlock
@@ -105,21 +103,27 @@ class Node(threading.Thread):
         self.unverifiedTransacton.pop(0)
         self.transactionToWorkIsVerifiyed = False
 
-    def verifvTransaction(self):
+    def verifyTransaction(self):
         if not self.transactionToWorkIsVerifiyed:
-            transaction = self.unverifiedTransacton[0]
-            for out in transaction.get("output"):
-                name = out[0].getName()
-                signature = transaction.get("signatures")[name]
-                message = transaction.get("transActionNumber")
-                try:
-                    out[0].verify(signature, message)
-                except BadSignatureError:
-                    self.unverifiedTransacton.pop(0)
-                    return False
-            self.transactionToWorkIsVerifiyed = True
+            return self.verifyTransactionSignature() and self.verifyTransationMoney()
         return True
 
+    def verifyTransactionSignature(self):
+        transaction = self.unverifiedTransacton[0]
+        for out in transaction.get("output"):
+            name = out[0].getName()
+            signature = transaction.get("signatures")[name]
+            message = transaction.get("transActionNumber")
+            try:
+                out[0].verify(signature, message)
+            except BadSignatureError:
+                self.unverifiedTransacton.pop(0)
+                return False
+        self.transactionToWorkIsVerifiyed = True
+        return True
+
+    def verifyTransationMoney(self):
+        return True
 # blockchain:{
 #     '057c48e453d850ffc3d8abb7b080ba12b01e3651c90c580b3e905f8c6afb9612': {'nounce': 8311886965351671661, 'previousBlock': 'cad27f8b2d5504ae65f18b595523b9c44708ed6e9ce0740d3434b8487da59274', 'transaction': {'output': [(<person.person instance at 0x10b6cc488>, 25)], 'transActionNumber': '057c48e453d850ffc3d8abb7b080ba12b01e3651c90c580b3e905f8c6afb9612', 'signatures': {'Alice': 'N\x116\x8f\xd9\x95\x9e#Cz\xd6"\x82E\x1e\xe15U$\xe7\x15p0\x94\x1f\xed\xed\xb6\x1f\xda\n\xbfJb\x9c\xc4\xdf\x1f\x02H\x0b\x8e[\x17i\x01\x9f\x8e'}, 'type': 'generate', 'input': [('0150ede729f30b7808b0c0e966bfb9f48018b27ab5519a52a854f28f80f2942a', 0)]}},
 #     '117692278fa0a46b1cee3d39b41f8ec8f8c2e65318e64f07d275002268d6ec84': {'nounce': 0, 'previousBlock': 0, 'transaction': {'output': [(<person.person instance at 0x10b6cc488>, 25)], 'transActionNumber': '117692278fa0a46b1cee3d39b41f8ec8f8c2e65318e64f07d275002268d6ec84', 'signatures': {'Alice': ',\xc2\x8b\xa01\x90\x08\x1f>\x83\xeb\x95-\xef\x8a\x91\xde\xac\xa5b\xc7u\xf0\x00a%\xa9qr\x19\xaa#d\x96\xfaaG\xc0X\xe9\x1bDc\xb0J\xaa\xcf\xd4'}, 'type': 'generate', 'input': [None]}},
