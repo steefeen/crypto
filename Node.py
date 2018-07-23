@@ -125,6 +125,7 @@ class Node(threading.Thread):
 
     def verifyTransationMoney(self):
         #print(self.transactionToWork)
+
         return False
 # blockchain:{
 #     '057c48e453d850ffc3d8abb7b080ba12b01e3651c90c580b3e905f8c6afb9612': {'nounce': 8311886965351671661, 'previousBlock': 'cad27f8b2d5504ae65f18b595523b9c44708ed6e9ce0740d3434b8487da59274', 'transaction': {'output': [(<person.person instance at 0x10b6cc488>, 25)], 'transActionNumber': '057c48e453d850ffc3d8abb7b080ba12b01e3651c90c580b3e905f8c6afb9612', 'signatures': {'Alice': 'N\x116\x8f\xd9\x95\x9e#Cz\xd6"\x82E\x1e\xe15U$\xe7\x15p0\x94\x1f\xed\xed\xb6\x1f\xda\n\xbfJb\x9c\xc4\xdf\x1f\x02H\x0b\x8e[\x17i\x01\x9f\x8e'}, 'type': 'generate', 'input': [('0150ede729f30b7808b0c0e966bfb9f48018b27ab5519a52a854f28f80f2942a', 0)]}},

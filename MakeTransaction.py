@@ -17,7 +17,7 @@ class MakeTransaction:
 
         self.distributeThreads()
 
-        message = generateTransaction([("db38787f7508a45fcfa87153ee454a55e1b31115e4e891e427eb9bce50605da2", 0)], [(self.persons[0], 25)], "generate")
+        message = generateTransaction([(0, 0)], [(self.persons[0], 25)], "generate")
 
         self.sendMessages(message)
 
@@ -51,7 +51,7 @@ class MakeTransaction:
     def generateRandomTransactions(self):
 
         #while True:
-        message = generateTransaction([("0150ede729f30b7808b0c0e966bfb9f48018b27ab5519a52a854f28f80f2942a", 0)], [(self.persons[0], 25)], "generate")
+        message = generateTransaction([(1, 0)], [(self.persons[0], 25)], "generate")
         self.sendMessages(message)
         time.sleep(randint(10, 20))
 
