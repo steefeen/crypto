@@ -35,10 +35,10 @@ class MakeTransaction:
     def createThreads(self, number):
 
         firstTransaction = generateTransaction([None], [(self.persons[0], 25)], "generate")
-        firstBlock = generateBlock(firstTransaction, 0, 0)
+        firstBlock = generateBlock(firstTransaction, 0)
         for t in range(number):
             q = Queue()
-            self.threads.append(Node(q, firstBlock, args=(True, 1)))
+            self.threads.append(Node(q, [firstBlock], args=(True, 1)))
             self.threads[t].start()
             time.sleep(0.1)
 

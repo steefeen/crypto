@@ -27,10 +27,9 @@ def makeHash(input, output):
         outputString = str(output)
     return hashlib.sha256(inputString + outputString).hexdigest()
 
-def generateBlock(transaction, nounce, previousBlock):
+def generateBlock(transaction, nounce):
 
     block = {
-        "previousBlock": previousBlock,
         "nounce": nounce,
         "transaction": transaction
     }
