@@ -20,5 +20,5 @@ class person:
     def get_verifying_key(self):
         return self.vk
 
-    def verify(self, signature ,message):
+    def verify(self, signature, message):
         return self.vk.verify(signature, message)
