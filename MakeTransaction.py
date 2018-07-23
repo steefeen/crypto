@@ -13,11 +13,11 @@ class MakeTransaction:
 
     def __init__(self):
 
-        self.createThreads(1)
+        self.createThreads(number = 1, difficulty = 4)
 
         self.distributeThreads()
 
-        message = generateTransaction([(0, 0), (0, 0)], [(self.persons[0], 25), (self.persons[1], 10)], "generate")
+        message = generateTransaction([(0, 0)], [(self.persons[0], 15), (self.persons[1], 10)], "generate")
 
         self.sendTransactionMessage(message)
 
@@ -32,13 +32,13 @@ class MakeTransaction:
             t.queue.put(self.threads)
             time.sleep(0.3)
 
-    def createThreads(self, number):
+    def createThreads(self, number, difficulty):
 
         firstTransaction = generateTransaction([None], [(self.persons[0], 25)], "generate")
         firstBlock = generateBlock(firstTransaction, 0)
         for t in range(number):
             q = Queue()
-            self.threads.append(Node(q, [firstBlock], args=(True, 1)))
+            self.threads.append(Node(q, [firstBlock], difficulty, args=(True, 1)))
             self.threads[t].start()
             time.sleep(0.1)
 
@@ -49,8 +49,11 @@ class MakeTransaction:
             time.sleep(0.3)
 
     def generateRandomTransactions(self):
+        number = 2
+        while number < 5:
+            message = generateTransaction([(number, 0)], [(self.persons[0], 15)], "generate")
+            self.sendTransactionMessage(message)
+            number += 1
+            time.sleep(randint(5, 20))
 
-        #while True:
-        message = generateTransaction([(1, 0)], [(self.persons[0], 25)], "generate")
-        self.sendTransactionMessage(message)
-        time.sleep(randint(10, 20))
+

@@ -10,10 +10,11 @@ from MUASCoin import generateBlock
 
 class Node(threading.Thread):
 
-    def __init__(self, queue, blockChain ,args=()):
+    def __init__(self, queue, blockChain, difficulty, args=()):
         threading.Thread.__init__(self, args=(), kwargs=None)
         self.queue = queue
         self.daemon = True
+        self.difficulty = difficulty
         self.receive_messages = args[0]
         self.startTransactions = args[1]
         self.unverifiedTransacton = []
@@ -98,7 +99,12 @@ class Node(threading.Thread):
 
         hashOfI = hashlib.sha256(str(self.transactionToWork) + str(i))
         #print(hashOfI.hexdigest())
-        if(hashOfI.hexdigest()[0:4] == "0000"):
+        difficultyString = "0"
+        index = 0
+        while index < self.difficulty:
+            difficultyString += "0"
+            index += 1
+        if hashOfI.hexdigest()[0 : self.difficulty] == difficultyString:
             print("tried: " + str(i) + "   found: " + hashOfI.hexdigest())
 
             self.foundHash(i)
@@ -143,7 +149,10 @@ class Node(threading.Thread):
         sumOfOutputs = sum([element[1] for element in outputs])  # adds all the money in the outputs together
 
         # sum of values of specified output in specified block
-        sumOfInPuts = sum([self.blockChain[element[0]].get("transaction").get("output")[element[1]][1] for element in previousInputs])
+        try:
+            sumOfInPuts = sum([self.blockChain[element[0]].get("transaction").get("output")[element[1]][1] for element in previousInputs])
+        except IndexError:
+            return False
         print(sumOfInPuts, sumOfOutputs)
         return sumOfInPuts == sumOfOutputs
 
