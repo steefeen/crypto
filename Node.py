@@ -97,7 +97,7 @@ class Node(threading.Thread):
 
     def foundHash(self, nonce):
         generatedBlock = generateBlock(self.transactionToWork, nonce)
-        self.lastBlock = self.transactionToWork.get("transActionNumber")
+        self.lastBlock = self.transactionToWork.get("transActionr")
         self.blockChain.append(generatedBlock)
         print("blockchain:" + str(self.blockChain))
         self.unverifiedTransacton.pop(0)
@@ -118,7 +118,7 @@ class Node(threading.Thread):
         for out in transaction.get("output"):
             name = out[0].getName()
             signature = transaction.get("signatures")[name]
-            message = transaction.get("transActionNumber")
+            message = transaction.get("HashOfTransaction")
             try:
                 out[0].verify(signature, message)
             except BadSignatureError:
@@ -126,6 +126,8 @@ class Node(threading.Thread):
         return True
 
     def verifyTransationMoney(self):
+        print( "to Verify: " + str(self.unverifiedTransacton[0]))
         #print(self.transactionToWork)
-
         return False
+
+

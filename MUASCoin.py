@@ -9,10 +9,10 @@ def generateTransaction(fromWho, toWho, type):
     #fromWho: list of Names
     #toWho: dictionary of Name/Value pairs
     signatures = {}#[nodes[x].sign("message") for x in fromWho] #ToDo: has to sign transaction from before
-    transActionNumber = makeHash(fromWho, toWho)
+    HashOfTransaction = makeHash(fromWho, toWho)
     for p in toWho:
-            signatures[p[0].getName()] = p[0].sign(transActionNumber)
-    return {"transActionNumber": transActionNumber,
+            signatures[p[0].getName()] = p[0].sign(HashOfTransaction)
+    return {"HashOfTransaction": HashOfTransaction,
             "type": type,
             "signatures": signatures,
             "output": toWho,
