@@ -19,7 +19,7 @@ class MakeTransaction:
 
         message = generateTransaction([(0, 0), (0, 0)], [(self.persons[0], 25), (self.persons[1], 10)], "generate")
 
-        self.sendMessages(message)
+        self.sendTransactionMessage(message)
 
         self.generateRandomTransactions()
 
@@ -42,10 +42,10 @@ class MakeTransaction:
             self.threads[t].start()
             time.sleep(0.1)
 
-    def sendMessages(self, message):
+    def sendTransactionMessage(self, message):
         time.sleep(1)
         for t in self.threads:
-            t.queue.put(message)
+            t.queue.put({"messageType": "newTransaction", "message": message})
             time.sleep(0.3)
 
     def generateRandomTransactions(self):

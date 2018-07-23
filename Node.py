@@ -32,10 +32,15 @@ class Node(threading.Thread):
 
         self.work()
 
-    def do_thing_with_message(self, message):
+    def gotNewTransaction(self, message):
         if self.receive_messages:
+            message = message.get("message")
             self.unverifiedTransacton.append(message)
-            print("unverified: " , threading.currentThread().getName(), ('[%s]' % ', '.join(map(str, self.unverifiedTransacton))))
+            print("unverified: ", threading.currentThread().getName(), ('[%s]' % ', '.join(map(str, self.unverifiedTransacton))))
+
+    def gotNewBlock(self, newBlock):
+        print ("newBlock")
+        return True
 
     def reciveThreads(self):
         val = self.queue.get()
@@ -51,7 +56,7 @@ class Node(threading.Thread):
             time.sleep(1)
             val = self.queue.get()
             if(val != None):
-                self.do_thing_with_message(val)
+                self.gotNewTransaction(val)
                 income = False
 
     def work(self):
@@ -81,8 +86,11 @@ class Node(threading.Thread):
         while not self.queue.empty():
             val = self.queue.get()
             if(val != None):
-                self.do_thing_with_message(val)
-
+                messageTyp = val.get("messageType")
+                if(messageTyp == "newTransaction"):
+                    self.gotNewTransaction(val)
+                elif(messageTyp == "newBlock"):
+                    self.gotNewBlock(val)
 
 
     def findHash(self):
@@ -97,8 +105,10 @@ class Node(threading.Thread):
 
     def foundHash(self, nonce):
         generatedBlock = generateBlock(self.transactionToWork, nonce)
-        self.lastBlock = self.transactionToWork.get("transActionr")
+        self.lastBlock = self.transactionToWork.get("transAction")
         self.blockChain.append(generatedBlock)
+
+        self.distributeNewBlock(generatedBlock)
         print("blockchain:" + str(self.blockChain))
         self.unverifiedTransacton.pop(0)
         self.transactionToWorkIsVerifiyed = False
@@ -137,4 +147,6 @@ class Node(threading.Thread):
         print(sumOfInPuts, sumOfOutputs)
         return sumOfInPuts == sumOfOutputs
 
-
+    def distributeNewBlock(self, newBlock):
+        for t in self.allThreads:
+            t.queue.put({"messageType": "newBlock", "message": newBlock})
