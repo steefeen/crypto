@@ -121,7 +121,7 @@ class Node(threading.Thread):
 
     def verifyTransaction(self):
         if not self.transactionToWorkIsVerifiyed:
-            transactionIsRight = self.verifyTransactionSignature() and self.verifyTransationMoney()
+            transactionIsRight = self.verifyTransactionSignature() and self.verifyTransationMoney() and self.verifyNoDoubleSpending()
             self.transactionToWorkIsVerifiyed = transactionIsRight
             if not transactionIsRight:
                 self.unverifiedTransacton.pop(0)
@@ -154,8 +154,21 @@ class Node(threading.Thread):
         except IndexError:
             return False
         print(sumOfInPuts, sumOfOutputs)
+
         return sumOfInPuts == sumOfOutputs
 
     def distributeNewBlock(self, newBlock):
         for t in self.allThreads:
             t.queue.put({"messageType": "newBlock", "message": newBlock})
+    def verifyNoDoubleSpending(self):
+        inputsToVerify = self.unverifiedTransacton[0].get("input")
+        # check if input was already used in blockchain
+        for inputToVerify in inputsToVerify:
+            for block in self.blockChain:
+                for previousInput in block.get("transaction").get("input"):
+                    if previousInput == inputToVerify:
+                        return False
+        # check if same input is used twice
+        return len(inputsToVerify) == len(set(inputsToVerify))
+
+
