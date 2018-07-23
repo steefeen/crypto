@@ -13,7 +13,7 @@ class MakeTransaction:
 
     def __init__(self):
 
-        self.createThreads(number = 1, difficulty = 4)
+        self.createThreads(number = 1, difficulty = 3)
 
         self.distributeThreads()
 
@@ -49,8 +49,9 @@ class MakeTransaction:
             time.sleep(0.3)
 
     def generateRandomTransactions(self):
-
-        #while True:
-        message = generateTransaction([(0, 0)], [(self.persons[0], 25)], "generate")
-        self.sendTransactionMessage(message)
-        time.sleep(randint(10, 20))
+        number  = 0
+        while number < 5:
+            message = generateTransaction([(number, 0)], [(self.persons[0], 25)], "generate")
+            self.sendTransactionMessage(message)
+            time.sleep(randint(5, 20))
+            number += 1
