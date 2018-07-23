@@ -52,5 +52,5 @@ class MakeTransaction:
 
         #while True:
         message = generateTransaction([(1, 0)], [(self.persons[0], 25)], "generate")
-        self.sendMessages(message)
+        self.sendTransactionMessage(message)
         time.sleep(randint(10, 20))
