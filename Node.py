@@ -69,7 +69,8 @@ class Node(threading.Thread):
             else:
                 return None
         else:
-            time.sleep(2)
+            print(threading.currentThread().getName(), "no more transactions")
+            time.sleep(5)
             return None
         # if(len(self.unverifiedTransacton)>0):
         #     number = randint(0, len(self.unverifiedTransacton)-1)
@@ -88,7 +89,7 @@ class Node(threading.Thread):
     def findHash(self):
         i = randint(0, sys.maxint)
 
-        hashOfI = hashlib.sha256(str(self.transactionToWork)+ str(i))
+        hashOfI = hashlib.sha256(str(self.transactionToWork) + str(i))
         #print(hashOfI.hexdigest())
         if(hashOfI.hexdigest()[0:4] == "0000"):
             print("tried: " + str(i) + "   found: " + hashOfI.hexdigest())
@@ -105,7 +106,9 @@ class Node(threading.Thread):
 
     def verifyTransaction(self):
         if not self.transactionToWorkIsVerifiyed:
-            return self.verifyTransactionSignature() and self.verifyTransationMoney()
+            transactionIsRight = self.verifyTransactionSignature() and self.verifyTransationMoney()
+            self.transactionToWorkIsVerifiyed = True
+            return transactionIsRight
         return True
 
     def verifyTransactionSignature(self):
@@ -119,7 +122,6 @@ class Node(threading.Thread):
             except BadSignatureError:
                 self.unverifiedTransacton.pop(0)
                 return False
-        self.transactionToWorkIsVerifiyed = True
         return True
 
     def verifyTransationMoney(self):
