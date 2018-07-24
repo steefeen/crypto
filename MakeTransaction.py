@@ -56,10 +56,10 @@ class MakeTransaction:
         while number < 5:
             blockChain = self.threads[0].getBlockchain()
             #rotate through all the persons
-            newOwner = self.persons[number % len(self.persons)]
+            newOwner = self.persons[randint(0, len(self.persons) - 1)]
             newInputs = [(number, 0)] #ToDo: Make inputs random
             #nicht anfassen, am besten auch nicht lesen
-            oldOwner = blockChain[newInputs[0][0]].get("transaction").get("output")[newInputs[0][1]][0]
+            oldOwner = blockChain[-1].get("transaction").get("output")[newInputs[0][1]][0]
             newOutputs = [(newOwner, 5)] #ToDo: Make payout random, maybe more than one new owner
             message = generateTransaction(newInputs, newOutputs, [oldOwner.sign(makeHash(newInputs, newOutputs))])
             self.sendTransactionMessage(message)
