@@ -132,12 +132,14 @@ class Node(threading.Thread):
 
     def verifyTransactionSignature(self):
         transaction = self.unverifiedTransacton[0]
-        for out in transaction.get("output"):
-            name = out[0].getName()
-            signature = transaction.get("signatures")[name]
+        for i in range(len(transaction.get("input"))):
+            input = transaction.get("input")[i]
+            previousBlock = self.blockChain[input[0]]
+            previousOwner = previousBlock.get("transaction").get("output")[input[1]][0]
+            signature = transaction.get("signatures")[i]
             message = transaction.get("HashOfTransaction")
             try:
-                out[0].verify(signature, message)
+                previousOwner.verify(signature, message)
             except BadSignatureError:
                 return False
         return True
@@ -173,4 +175,5 @@ class Node(threading.Thread):
         # check if same input is used twice
         return len(inputsToVerify) == len(set(inputsToVerify))
 
-
+    def getBlockchain(self):
+        return self.blockChain

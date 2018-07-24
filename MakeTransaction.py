@@ -1,7 +1,7 @@
 from Queue import Queue
 import time
 from Node import Node
-from MUASCoin import generateTransaction
+from MUASCoin import generateTransaction, makeHash
 from MUASCoin import generateBlock
 from random import randint
 from person import person
@@ -16,12 +16,15 @@ class MakeTransaction:
         self.createThreads(number = 1, difficulty = 3)
 
         self.distributeThreads()
-
-        message = generateTransaction([(0, 0), (0, 0)], [(self.persons[0], 40), (self.persons[1], 10)], "generate")
+        originOutput = [(0, 0)]
+        originalOwner = self.persons[0]
+        newOutput = [(originalOwner, 5), (self.persons[1], 20)]
+        signatureOrginalOwner = originalOwner.sign(makeHash(originOutput, newOutput))
+        message = generateTransaction(originOutput, newOutput, [signatureOrginalOwner])
 
         self.sendTransactionMessage(message)
 
-        self.generateRandomTransactions()
+        self.generateRandomValidTransactions()
 
         for t in self.threads:
             t.join()
@@ -34,7 +37,7 @@ class MakeTransaction:
 
     def createThreads(self, number, difficulty):
 
-        firstTransaction = generateTransaction([None], [(self.persons[0], 25)], "generate")
+        firstTransaction = generateTransaction([None], [(self.persons[0], 25)], [])
         firstBlock = generateBlock(firstTransaction, 0)
         for t in range(number):
             q = Queue()
@@ -48,10 +51,17 @@ class MakeTransaction:
             t.queue.put({"messageType": "newTransaction", "message": message})
             time.sleep(0.3)
 
-    def generateRandomTransactions(self):
+    def generateRandomValidTransactions(self):
         number = 0
         while number < 5:
-            message = generateTransaction([(number, 0)], [(self.persons[0], 25)], "generate")
+            blockChain = self.threads[0].getBlockchain()
+            #rotate through all the persons
+            newOwner = self.persons[number % len(self.persons)]
+            newInputs = [(number, 0)] #ToDo: Make inputs random
+            #nicht anfassen, am besten auch nicht lesen
+            oldOwner = blockChain[newInputs[0][0]].get("transaction").get("output")[newInputs[0][1]][0]
+            newOutputs = [(newOwner, 5)] #ToDo: Make payout random, maybe more than one new owner
+            message = generateTransaction(newInputs, newOutputs, [oldOwner.sign(makeHash(newInputs, newOutputs))])
             self.sendTransactionMessage(message)
             time.sleep(randint(5, 10))
             number += 1
