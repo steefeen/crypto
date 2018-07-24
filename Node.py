@@ -104,7 +104,7 @@ class Node(threading.Thread):
         while index < self.difficulty:
             difficultyString += "0"
             index += 1
-        if hashOfI.hexdigest()[0 : self.difficulty] == difficultyString:
+        if hashOfI.hexdigest()[0 : self.difficulty+1] == difficultyString:
             print("tried: " + str(i) + "   found: " + hashOfI.hexdigest())
 
             self.foundHash(i)
@@ -125,7 +125,7 @@ class Node(threading.Thread):
             self.transactionToWorkIsVerifiyed = transactionIsRight
             if not transactionIsRight:
                 self.unverifiedTransacton.pop(0)
-                print(self.unverifiedTransacton)
+                print("unverified transactions:  ", self.unverifiedTransacton)
             return transactionIsRight
         return True
 
@@ -160,6 +160,7 @@ class Node(threading.Thread):
     def distributeNewBlock(self, newBlock):
         for t in self.allThreads:
             t.queue.put({"messageType": "newBlock", "message": newBlock})
+
     def verifyNoDoubleSpending(self):
         inputsToVerify = self.unverifiedTransacton[0].get("input")
         # check if input was already used in blockchain
