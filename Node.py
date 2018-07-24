@@ -160,7 +160,7 @@ class Node(threading.Thread):
             sumOfInPuts = sum([self.blockChain[element[0]].get("transaction").get("output")[element[1]][1] for element in previousInputs])
         except IndexError:
             return False
-        self.log(str(sumOfInPuts) + str(sumOfOutputs))
+        self.log(str(sumOfInPuts) + "  " + str(sumOfOutputs))
 
         return sumOfInPuts == sumOfOutputs
 
