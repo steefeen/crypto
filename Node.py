@@ -104,7 +104,6 @@ class Node(threading.Thread):
         while index < self.difficulty:
             difficultyString += "0"
             index += 1
-        print(difficultyString)
         if hashOfI.hexdigest()[0 : self.difficulty + 1] == difficultyString:
             print("tried: " + str(i) + "   found: " + hashOfI.hexdigest())
 
