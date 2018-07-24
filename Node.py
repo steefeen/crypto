@@ -104,16 +104,18 @@ class Node(threading.Thread):
         while index < self.difficulty:
             difficultyString += "0"
             index += 1
-        if hashOfI.hexdigest()[0 : self.difficulty+1] == difficultyString:
+        print(difficultyString)
+        if hashOfI.hexdigest()[0 : self.difficulty + 1] == difficultyString:
             print("tried: " + str(i) + "   found: " + hashOfI.hexdigest())
 
             self.foundHash(i)
 
     def foundHash(self, nonce):
         generatedBlock = generateBlock(self.transactionToWork, nonce)
+        if not self.queue.empty():
+            raise Exception('Maxi was laberst du')
         self.lastBlock = self.transactionToWork.get("transAction")
         self.blockChain.append(generatedBlock)
-
         self.distributeNewBlock(generatedBlock)
         print("blockchain:" + str(self.blockChain))
         self.unverifiedTransacton.pop(0)

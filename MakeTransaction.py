@@ -49,9 +49,9 @@ class MakeTransaction:
             time.sleep(0.3)
 
     def generateRandomTransactions(self):
-        number  = 0
+        number = 0
         while number < 5:
             message = generateTransaction([(number, 0)], [(self.persons[0], 25)], "generate")
             self.sendTransactionMessage(message)
-            time.sleep(randint(5, 20))
+            time.sleep(randint(5, 10))
             number += 1
