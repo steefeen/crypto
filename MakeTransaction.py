@@ -13,7 +13,7 @@ class MakeTransaction:
 
     def __init__(self):
 
-        self.createThreads(number = 1, difficulty = 3)
+        self.createThreads(number = 2, difficulty = 3)
 
         self.distributeThreads()
         originOutput = [(0, 0)]
