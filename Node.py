@@ -138,6 +138,8 @@ class Node(threading.Thread):
         transaction = unverifiedTransaction
         for i in range(len(transaction.get("input"))):
             input = transaction.get("input")[i]
+            if input[0] > len(self.blockChain):
+                return False
             previousBlock = self.blockChain[input[0]]
             previousOwner = previousBlock.get("transaction").get("output")[input[1]][0]
             signature = transaction.get("signatures")[i]
