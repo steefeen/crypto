@@ -9,11 +9,11 @@ from person import person
 
 class MakeTransaction:
     threads = []
-    persons = [person("Alice"), person("Bob"), person("Carol")]
+    persons = [person("Alice"), person("Bob"), person("Carol"), person("David")]
 
     def __init__(self):
 
-        self.createThreads(number = 1, difficulty = 2)
+        self.createThreads(number = 3, difficulty = 2)
 
         self.distributeThreads()
 
@@ -25,10 +25,8 @@ class MakeTransaction:
             t.join()
 
     def distributeThreads(self):
-        time.sleep(1)
         for t in self.threads:
             t.queue.put(self.threads)
-            time.sleep(0.3)
 
     def createThreads(self, number, difficulty):
 
@@ -38,7 +36,6 @@ class MakeTransaction:
             q = Queue()
             self.threads.append(Node(q, [firstBlock], difficulty, startTransaction=1))
             self.threads[t].start()
-            time.sleep(0.1)
 
     def sendTransactionMessage(self, message):
         for t in self.threads:
@@ -91,6 +88,6 @@ class MakeTransaction:
             newOutputs = [(newOwner, 5)] #ToDo: Make payout random, maybe more than one new owner
             message = generateTransaction(newInputs, newOutputs, [oldOwner.sign(makeHash(newInputs, newOutputs))])
             self.sendTransactionMessage(message)
-            time.sleep(randint(2, 5))
+            time.sleep(randint(0, 2))
             number += 1
 
