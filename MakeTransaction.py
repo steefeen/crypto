@@ -13,7 +13,7 @@ class MakeTransaction:
 
     def __init__(self):
 
-        self.createThreads(number = 2, difficulty = 3)
+        self.createThreads(number = 2, difficulty = 4)
 
         self.distributeThreads()
         originOutput = [(0, 0)]
@@ -22,6 +22,7 @@ class MakeTransaction:
         signatureOrginalOwner = originalOwner.sign(makeHash(originOutput, newOutput))
         message = generateTransaction(originOutput, newOutput, [signatureOrginalOwner])
 
+        self.sendTransactionMessage(message)
         self.sendTransactionMessage(message)
 
         self.generateRandomValidTransactions()
@@ -53,7 +54,7 @@ class MakeTransaction:
 
     def generateRandomValidTransactions(self):
         number = 0
-        while number < 5:
+        while number < 0:
             blockChain = self.threads[0].getBlockchain()
             #rotate through all the persons
             newOwner = self.persons[randint(0, len(self.persons) - 1)]
@@ -65,3 +66,4 @@ class MakeTransaction:
             self.sendTransactionMessage(message)
             time.sleep(randint(5, 10))
             number += 1
+

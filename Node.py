@@ -43,7 +43,8 @@ class Node(threading.Thread):
 
         if self.verifyNewBlock(block):
             self.blockChain.append(block)
-            self.unverifiedTransacton.pop(0)
+            if len(self.unverifiedTransacton) > 0:
+                self.unverifiedTransacton.pop(0)
             self.log("block confirmed")
 
     def reciveThreads(self):
@@ -115,7 +116,7 @@ class Node(threading.Thread):
     def foundHash(self, nonce):
         generatedBlock = generateBlock(self.transactionToWork, nonce)
         if not self.queue.empty():
-            raise Exception("Maxi was laberst du")
+            raise Exception("Maxi was laberst du?")
         self.lastBlock = self.transactionToWork.get("transAction")
         self.blockChain.append(generatedBlock)
         self.distributeNewBlock(generatedBlock)
@@ -136,9 +137,11 @@ class Node(threading.Thread):
 
     def verifyTransactionSignature(self, unverifiedTransaction):
         transaction = unverifiedTransaction
+        if transaction.get("input") == None:
+            return False
         for i in range(len(transaction.get("input"))):
             input = transaction.get("input")[i]
-            if input[0] > len(self.blockChain):
+            if input[0] > len(self.blockChain) - 1:
                 return False
             previousBlock = self.blockChain[input[0]]
             previousOwner = previousBlock.get("transaction").get("output")[input[1]][0]
@@ -199,3 +202,92 @@ class Node(threading.Thread):
 
     def getBlockchain(self):
         return self.blockChain
+
+#     blockchain:[
+#    {
+#       'nounce':0,
+#       'transaction':{
+#          'output':[
+#             (< person.person instance at 0x10cf38200 >,
+#             25            )
+#          ],
+#          'signatures':[
+#
+#          ],
+#          'HashOfTransaction':'8198b72539a0e13e3ba3867c02f8bf85d578f0df691d02300019ea63fc024022',
+#          'input':[
+#             None
+#          ]
+#       }
+#    },
+#    {
+#       'nounce':3868783673210654595,
+#       'transaction':{
+#          'output':[
+#             (< person.person instance at 0x10cf38200 >,
+#             5            ),
+#             (< person.person instance at 0x10cf508c0 >,
+#             20            )
+#          ],
+#          'signatures':[
+#             "\xb9/=\x05\x90w+\x90t\x04O\xda\xe4\xee\xb7\xb1\xd1\xf6\x85V\xf6r\xb3\x10\xe2\xf4rC\xbaj\x04\x10\xe7\x8e.:\xc7'\xfd\xad\x8a\x85]\x9d \xbeF\xb9"
+#          ],
+#          'HashOfTransaction':'49aaa4ff230deff6973a420efafc4506136410831876416f5e0866b8e6e19c71',
+#          'input':[
+#             (0,
+#             0            )
+#          ]
+#       }
+#    },
+#    {
+#       'nounce':80197979391901477,
+#       'transaction':{
+#          'output':[
+#             (< person.person instance at 0x10cf38200 >,
+#             5            )
+#          ],
+#          'signatures':[
+#             '\xb4\xdftK\xf5k\xca\x80\xc3S\x0b\xc76\x88H\x9e\xae\x8cm\x92\x04ol\xed\xd0\x8f\xb7\x1dn\xd5\x89\x14\xb5\\\x9dq\x9f\xea\xb7\t\xbak\xc0\xa1\xce\x0e\x89\x0c'
+#          ],
+#          'HashOfTransaction':'d2f6a923c0a27265aec168329d76468b0eb97918eb6217903be138069a4f6e27',
+#          'input':[
+#             (1,
+#             0            )
+#          ]
+#       }
+#    },
+#    {
+#       'nounce':2150418254134293154,
+#       'transaction':{
+#          'output':[
+#             (< person.person instance at 0x10cf50a28 >,
+#             5            )
+#          ],
+#          'signatures':[
+#             '\xab\xc6\xc4M\xb2\xf8\x05\x87\xd8}6\x06\xc1.\xe1\x10\xaa\x13\xf9+\xdcVR1\xa6\xed\xad\xbdV\xbf\xdfS\xd8\x1b\x8a]y7\xb1\xddO\xea\xedX\x12r\xb0|'
+#          ],
+#          'HashOfTransaction':'1affcc088d1551eb0bdc7f7c763751610fda567a633d234ae4a0c0b553eed49e',
+#          'input':[
+#             (2,
+#             0            )
+#          ]
+#       }
+#    },
+#    {
+#       'nounce':8148766975993033673,
+#       'transaction':{
+#          'output':[
+#             (< person.person instance at 0x10cf38200 >,
+#             5            )
+#          ],
+#          'signatures':[
+#             '^\x85\xd4\xf8Q\xafR\xa7\xdd\x1d\x9c\x9aR8\xcbr\x92\xea\xd2\x01e\xe4\xda\xfd\x8d\xa5\x86\x15\xd7@tVP\xe0\x8d8-KH\xcc\x83_P\x85\x18\xe8\xb6\x06'
+#          ],
+#          'HashOfTransaction':'b2576179a7cdb2982ff54ab28ee2bdd3a1f154dfbdd96326f231dea0296f34c6',
+#          'input':[
+#             (3,
+#             0            )
+#          ]
+#       }
+#    }
+# ]
