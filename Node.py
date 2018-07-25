@@ -167,11 +167,11 @@ class Node(threading.Thread):
         try:
             sumOfInPuts = sum([self.blockChain[element[0]].get("transaction").get("output")[element[1]][1] for element in previousInputs])
         except IndexError:
-            self.logAll("transaction not confirmed   wrong money ", str(unverifiedTransaction))
+            self.logAll("transaction not confirmed   wrong money1 ", str(unverifiedTransaction))
             return False
 
         if sumOfInPuts == sumOfOutputs:
-            self.logAll("transaction not confirmed   wrong money ", str(unverifiedTransaction))
+            self.logAll("transaction not confirmed   wrong money2 ", str(unverifiedTransaction))
 
         return sumOfInPuts == sumOfOutputs
 
@@ -182,12 +182,13 @@ class Node(threading.Thread):
             for block in self.blockChain:
                 for previousInput in block.get("transaction").get("input"):
                     if previousInput == inputToVerify:
-                        self.logAll("transaction not confirmed   double spending ", str(unverifiedTransaction))
+                        self.logAll("transaction not confirmed   double spending1 ", str(unverifiedTransaction))
                         return False
         # check if same input is used twice
-        if len(inputsToVerify) == len(set(inputsToVerify)):
-            self.logAll("transaction not confirmed   double spending ", str(unverifiedTransaction))
-        return len(inputsToVerify) == len(set(inputsToVerify))
+        lenIsEqually = len(inputsToVerify) == len(set(inputsToVerify))
+        if not lenIsEqually:
+            self.logAll("transaction not confirmed   double spending2 ", str(unverifiedTransaction))
+        return lenIsEqually
 
     def distributeNewBlock(self, newBlock):
         for t in self.allThreads:
@@ -206,8 +207,8 @@ class Node(threading.Thread):
         return hash[0 : self.difficulty + 1] == difficultyString and isTransactionVerified
 
     def logAll(self, messageType, message):
-        logging = True
-        all = True
+        logging = False
+        all = False
         with self.printLock:
             if logging:
                 if all:
