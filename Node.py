@@ -46,6 +46,8 @@ class Node(threading.Thread):
             if len(self.unverifiedTransacton) > 0:
                 self.unverifiedTransacton.pop(0)
             self.log("block confirmed")
+        else:
+            print("block denied")
 
     def reciveThreads(self):
         val = self.queue.get()
@@ -73,7 +75,7 @@ class Node(threading.Thread):
 
     def getRandomTransaction(self):
         if (len(self.unverifiedTransacton) > 0):
-            if self.verifyTransaction(self.unverifiedTransacton[0]):
+            if self.verifyTransaction(self.unverifiedTransacton[0], False):
                 return self.unverifiedTransacton[0]
             else:
                 return None
@@ -125,10 +127,14 @@ class Node(threading.Thread):
         self.transactionToWorkIsVerifiyed = False
         self.printBalances()
 
-    def verifyTransaction(self, unverifiedTransaction):
-        if not self.transactionToWorkIsVerifiyed:
-            transactionIsRight = self.verifyTransactionSignature(unverifiedTransaction) and self.verifyTransationMoney(unverifiedTransaction) and self.verifyNoDoubleSpending(unverifiedTransaction)
+    def verifyTransaction(self, unverifiedTransaction, isBlock):
+        if not self.transactionToWorkIsVerifiyed or isBlock:
+            transactionSignatureIsRight = self.verifyTransactionSignature(unverifiedTransaction)
+            transactionMoneyIsRight = self.verifyTransationMoney(unverifiedTransaction)
+            transactionNoDoubleSpending = self.verifyNoDoubleSpending(unverifiedTransaction)
+            transactionIsRight = transactionSignatureIsRight and transactionMoneyIsRight and transactionNoDoubleSpending
             self.transactionToWorkIsVerifiyed = transactionIsRight
+
             if not transactionIsRight:
                 if len(self.unverifiedTransacton) > 0:
                     self.unverifiedTransacton.pop(0)
@@ -194,7 +200,7 @@ class Node(threading.Thread):
         while index < self.difficulty:
             difficultyString += "0"
             index += 1
-        isTransactionVerified = self.verifyTransaction(transaction)
+        isTransactionVerified = self.verifyTransaction(transaction, True)
         return hash[0 : self.difficulty + 1] == difficultyString and isTransactionVerified
 
     def log(self, message):
