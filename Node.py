@@ -55,7 +55,6 @@ class Node(threading.Thread):
     def waitForFirstMessage(self):
         income = True
         while income:
-            time.sleep(1)
             val = self.queue.get()
             if(val != None):
                 self.gotNewTransaction(val)

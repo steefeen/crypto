@@ -1,3 +1,4 @@
+import random
 from Queue import Queue
 import time
 from Node import Node
@@ -78,16 +79,16 @@ class MakeTransaction:
 
     def generateRandomValidTransactions(self):
         number = 0
-        while number < 50:
+        while number < 100:
             blockChain = self.threads[0].getBlockchain()
             #rotate through all the persons
             newOwner = self.persons[randint(0, len(self.persons) - 1)]
-            newInputs = [(len(blockChain) - 1, 0)] #ToDo: Make inputs random
+            newInputs = [(len(blockChain) - 1, 0)]
             #nicht anfassen, am besten auch nicht lesen
             oldOwner = blockChain[-1].get("transaction").get("output")[newInputs[0][1]][0]
             newOutputs = [(newOwner, 5)] #ToDo: Make payout random, maybe more than one new owner
             message = generateTransaction(newInputs, newOutputs, [oldOwner.sign(makeHash(newInputs, newOutputs))])
             self.sendTransactionMessage(message)
-            time.sleep(randint(0, 2))
+            time.sleep(random.uniform(0.1, 1.0))
             number += 1
 
