@@ -13,12 +13,29 @@ class MakeTransaction:
 
     def __init__(self):
 
-        self.createThreads(number = 2, difficulty = 2)
+        self.createThreads(number = 3, difficulty = 3)
 
         self.distributeThreads()
+
         originOutput = [(0, 0)]
         originalOwner = self.persons[0]
-        newOutput = [(originalOwner, 5), (self.persons[1], 20)]
+        newOutput = [(originalOwner, 20), (self.persons[1], 5)]
+        signatureOrginalOwner = originalOwner.sign(makeHash(originOutput, newOutput))
+        message = generateTransaction(originOutput, newOutput, [signatureOrginalOwner])
+
+        self.sendTransactionMessage(message)
+
+        originOutput = [(1, 1)]
+        originalOwner = self.persons[1]
+        newOutput = [(originalOwner, 0), (self.persons[2], 5)]
+        signatureOrginalOwner = originalOwner.sign(makeHash(originOutput, newOutput))
+        message = generateTransaction(originOutput, newOutput, [signatureOrginalOwner])
+
+        self.sendTransactionMessage(message)
+
+        originOutput = [(1, 0), (2, 0)]
+        originalOwner = self.persons[1]
+        newOutput = [(originalOwner, 0), (self.persons[2], 5)]
         signatureOrginalOwner = originalOwner.sign(makeHash(originOutput, newOutput))
         message = generateTransaction(originOutput, newOutput, [signatureOrginalOwner])
 
@@ -41,18 +58,17 @@ class MakeTransaction:
         firstBlock = generateBlock(firstTransaction, 0)
         for t in range(number):
             q = Queue()
-            self.threads.append(Node(q, [firstBlock], difficulty, args=(True, 1)))
+            self.threads.append(Node(q, [firstBlock], difficulty, startTransaction=1))
             self.threads[t].start()
             time.sleep(0.1)
 
     def sendTransactionMessage(self, message):
-        time.sleep(1)
         for t in self.threads:
             t.queue.put({"messageType": "newTransaction", "message": message})
 
     def generateRandomValidTransactions(self):
         number = 0
-        while number < 100:
+        while number < 50:
             blockChain = self.threads[0].getBlockchain()
             #rotate through all the persons
             newOwner = self.persons[randint(0, len(self.persons) - 1)]
@@ -62,6 +78,6 @@ class MakeTransaction:
             newOutputs = [(newOwner, 5)] #ToDo: Make payout random, maybe more than one new owner
             message = generateTransaction(newInputs, newOutputs, [oldOwner.sign(makeHash(newInputs, newOutputs))])
             self.sendTransactionMessage(message)
-            time.sleep(randint(1, 3))
+            time.sleep(randint(5, 10))
             number += 1
 
