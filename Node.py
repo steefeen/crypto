@@ -45,9 +45,10 @@ class Node(threading.Thread):
             self.blockChain.append(block)
             if len(self.unverifiedTransacton) > 0:
                 self.unverifiedTransacton.pop(0)
+                self.transactionToWorkIsVerifiyed = False
             self.log("block confirmed")
         else:
-            print("block denied")
+            self.log("block denied")
 
     def reciveThreads(self):
         val = self.queue.get()
@@ -128,7 +129,8 @@ class Node(threading.Thread):
         self.printBalances()
 
     def verifyTransaction(self, unverifiedTransaction, isBlock):
-        if not self.transactionToWorkIsVerifiyed or isBlock:
+
+        if (not self.transactionToWorkIsVerifiyed) or isBlock:
             transactionSignatureIsRight = self.verifyTransactionSignature(unverifiedTransaction)
             transactionMoneyIsRight = self.verifyTransationMoney(unverifiedTransaction)
             transactionNoDoubleSpending = self.verifyNoDoubleSpending(unverifiedTransaction)
@@ -204,12 +206,16 @@ class Node(threading.Thread):
         return hash[0 : self.difficulty + 1] == difficultyString and isTransactionVerified
 
     def log(self, message):
-        lock = True
+        lock = False
         if lock:
             print(message)
 
     def getBlockchain(self):
         return self.blockChain
+
+    def removeTransaction(self):
+        self.unverifiedTransacton.pop(0)
+        self.transactionToWorkIsVerifiyed = False
 
     def printBalances(self):
         balances = {}
