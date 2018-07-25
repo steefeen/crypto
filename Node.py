@@ -123,6 +123,7 @@ class Node(threading.Thread):
         self.log("blockchain:" + str(self.blockChain))
         self.unverifiedTransacton.pop(0)
         self.transactionToWorkIsVerifiyed = False
+        self.printBalances()
 
     def verifyTransaction(self, unverifiedTransaction):
         if not self.transactionToWorkIsVerifiyed:
@@ -202,6 +203,9 @@ class Node(threading.Thread):
 
     def getBlockchain(self):
         return self.blockChain
+
+    def printBalances(self):
+        print("maxiiiiiiiiiiiiiiiiix")
 
 #     blockchain:[
 #    {
