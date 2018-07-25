@@ -194,7 +194,8 @@ class Node(threading.Thread):
         while index < self.difficulty:
             difficultyString += "0"
             index += 1
-        return hash[0 : self.difficulty + 1] == difficultyString and self.verifyTransaction(transaction)
+        isTransactionVerified = self.verifyTransaction(transaction)
+        return hash[0 : self.difficulty + 1] == difficultyString and isTransactionVerified
 
     def log(self, message):
         lock = True
