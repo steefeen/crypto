@@ -137,22 +137,23 @@ class Node(threading.Thread):
         return True
 
     def verifyTransactionSignature(self, unverifiedTransaction):
-        transaction = unverifiedTransaction
-        if transaction.get("input") == None:
+
+        if unverifiedTransaction.get("input") == None:
+            self.logAll("transaction not confirmed   wrong siganture3 ", str(unverifiedTransaction))
             return False
-        for i in range(len(transaction.get("input"))):
-            input = transaction.get("input")[i]
+        for i in range(len(unverifiedTransaction.get("input"))):
+            input = unverifiedTransaction.get("input")[i]
             if input[0] > len(self.blockChain) - 1:
-                self.logAll("transaction not confirmed   wrong siganture ", str(transaction))
+                self.logAll("transaction not confirmed   wrong siganture1 ", str(unverifiedTransaction))
                 return False
             previousBlock = self.blockChain[input[0]]
             previousOwner = previousBlock.get("transaction").get("output")[input[1]][0]
-            signature = transaction.get("signatures")[i]
-            message = transaction.get("HashOfTransaction")
+            signature = unverifiedTransaction.get("signatures")[i]
+            message = unverifiedTransaction.get("HashOfTransaction")
             try:
                 previousOwner.verify(signature, message)
             except BadSignatureError:
-                self.logAll("transaction not confirmed   wrong siganture ", str(transaction))
+                self.logAll("transaction not confirmed   wrong siganture2 ", str(unverifiedTransaction))
                 return False
         return True
 
@@ -170,7 +171,7 @@ class Node(threading.Thread):
             self.logAll("transaction not confirmed   wrong money1 ", str(unverifiedTransaction))
             return False
 
-        if sumOfInPuts == sumOfOutputs:
+        if not sumOfInPuts == sumOfOutputs:
             self.logAll("transaction not confirmed   wrong money2 ", str(unverifiedTransaction))
 
         return sumOfInPuts == sumOfOutputs
@@ -230,10 +231,14 @@ class Node(threading.Thread):
         balances = {}
         for block in self.blockChain:
             for output in block.get("transaction").get("output"):
-                if output[0].getName() in balances:
-                    balances[output[0].getName()] += output[1]
-                else:
-                    balances[output[0].getName()] = output[1]
+                try:
+                    if output[0].getName() in balances:
+                        balances[output[0].getName()] += output[1]
+                    else:
+                        balances[output[0].getName()] = output[1]
+                except AttributeError:
+                    print(output)
+                    print("asdf")
         for block in self.blockChain:
             for input in block.get("transaction").get("input"):
                 if input != None:

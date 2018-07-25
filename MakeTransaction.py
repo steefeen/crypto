@@ -13,33 +13,11 @@ class MakeTransaction:
 
     def __init__(self):
 
-        self.createThreads(number = 1, difficulty = 3)
+        self.createThreads(number = 1, difficulty = 2)
 
         self.distributeThreads()
 
-        originOutput = [(0, 0)]
-        originalOwner = self.persons[0]
-        newOutput = [(originalOwner, 20), (self.persons[1], 5)]
-        signatureOrginalOwner = originalOwner.sign(makeHash(originOutput, newOutput))
-        message = generateTransaction(originOutput, newOutput, [signatureOrginalOwner])
-
-        self.sendTransactionMessage(message)
-
-        originOutput = [(1, 1)]
-        originalOwner = self.persons[1]
-        newOutput = [(originalOwner, 0), (self.persons[2], 5)]
-        signatureOrginalOwner = originalOwner.sign(makeHash(originOutput, newOutput))
-        message = generateTransaction(originOutput, newOutput, [signatureOrginalOwner])
-
-        self.sendTransactionMessage(message)
-
-        originOutput = [(1, 0)]
-        originalOwner = self.persons[0]
-        newOutput = [(originalOwner, 5), (self.persons[2], 15)]
-        signatureOrginalOwner = originalOwner.sign(makeHash(originOutput, newOutput))
-        message = generateTransaction(originOutput, newOutput, [signatureOrginalOwner])
-
-        self.sendTransactionMessage(message)
+        self.sendDefinedTransactions()
 
         self.generateRandomValidTransactions()
 
@@ -65,6 +43,41 @@ class MakeTransaction:
     def sendTransactionMessage(self, message):
         for t in self.threads:
             t.queue.put({"messageType": "newTransaction", "message": message})
+
+    def sendDefinedTransactions(self):
+        originOutput = [(0, 0)]
+        originalOwner = self.persons[0]
+        newOutput = [(originalOwner, 20), (self.persons[1], 5)]
+        signatureOrginalOwner = originalOwner.sign(makeHash(originOutput, newOutput))
+        message = generateTransaction(originOutput, newOutput, [signatureOrginalOwner])
+
+        self.sendTransactionMessage(message)
+
+        originOutput = [(1, 1)]
+        originalOwner = self.persons[1]
+        newOutput = [(originalOwner, 0), (self.persons[2], 5)]
+        signatureOrginalOwner = originalOwner.sign(makeHash(originOutput, newOutput))
+        message = generateTransaction(originOutput, newOutput, [signatureOrginalOwner])
+
+        self.sendTransactionMessage(message)
+
+        originOutput = [(2, 1), (1, 0)]
+        originalOwner = [self.persons[2], self.persons[0]]
+        newOutput = [(self.persons[1], 25)]
+        signatureOrginalOwner = []
+        for owner in originalOwner:
+            signatureOrginalOwner.append(owner.sign(makeHash(originOutput, newOutput)))
+        message = generateTransaction(originOutput, newOutput, signatureOrginalOwner)
+
+        self.sendTransactionMessage(message)
+
+        originOutput = [(3, 0)]
+        originalOwner = self.persons[1]
+        newOutput = [(originalOwner, 5), (self.persons[2], 20)]
+        signatureOrginalOwner = originalOwner.sign(makeHash(originOutput, newOutput))
+        message = generateTransaction(originOutput, newOutput, [signatureOrginalOwner])
+
+        self.sendTransactionMessage(message)
 
     def generateRandomValidTransactions(self):
         number = 0
