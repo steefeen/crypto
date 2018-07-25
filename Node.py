@@ -206,8 +206,8 @@ class Node(threading.Thread):
         return hash[0 : self.difficulty + 1] == difficultyString and isTransactionVerified
 
     def logAll(self, messageType, message):
-        logging = False
-        all = False
+        logging = True
+        all = True
         with self.printLock:
             if logging:
                 if all:
