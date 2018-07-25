@@ -212,8 +212,20 @@ class Node(threading.Thread):
         return self.blockChain
 
     def printBalances(self):
-        print("maxiiiiiiiiiiiiiiiiix")
-
+        balances = {}
+        for block in self.blockChain:
+            for output in block.get("transaction").get("output"):
+                if output[0].getName() in balances:
+                    balances[output[0].getName()] += output[1]
+                else:
+                    balances[output[0].getName()] = output[1]
+        for block in self.blockChain:
+            for input in block.get("transaction").get("input"):
+                if input != None:
+                    previousBlock = self.blockChain[input[0]]
+                    previousOutputs = previousBlock.get("transaction").get("output")
+                    balances[previousOutputs[input[1]][0].getName()] -= previousOutputs[input[1]][1]
+        print(balances)
 #     blockchain:[
 #    {
 #       'nounce':0,
