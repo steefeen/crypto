@@ -22,6 +22,8 @@ class MakeTransaction:
 
         self.generateRandomValidTransactions()
 
+        self.generateEvenMoreTransactions2Recipients()
+
         for t in self.threads:
             t.join()
 
@@ -79,7 +81,7 @@ class MakeTransaction:
 
     def generateRandomValidTransactions(self):
         number = 0
-        while number < 100:
+        while number < 5:
             blockChain = self.threads[0].getBlockchain()
             #rotate through all the persons
             newOwner = self.persons[randint(0, len(self.persons) - 1)]
@@ -92,3 +94,17 @@ class MakeTransaction:
             time.sleep(random.uniform(0.1, 1.0))
             number += 1
 
+    def generateEvenMoreTransactions2Recipients(self):
+        number = 0
+        while number < 1000:
+            blockChain = self.threads[0].getBlockchain()
+            newOwner1 = self.persons[randint(0, len(self.persons) - 1)]
+            newOwner2 = self.persons[randint(0, len(self.persons) - 1)]
+            newInputs = [(len(blockChain) - 1, 0)]
+            oldOwner = blockChain[-1].get("transaction").get("output")[newInputs[0][1]][0]
+            oldValue = blockChain[-1].get("transaction").get("output")[newInputs[0][1]][1]
+            newOutputs = [(newOwner1, oldValue/2.0), (newOwner2, oldValue/2.0)]
+            message = generateTransaction(newInputs, newOutputs, [oldOwner.sign(makeHash(newInputs, newOutputs))])
+            self.sendTransactionMessage(message)
+            time.sleep(random.uniform(0.1, 1.0))
+            number += 1
