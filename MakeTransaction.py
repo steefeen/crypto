@@ -81,7 +81,7 @@ class MakeTransaction:
 
     def generateRandomValidTransactions(self):
         number = 0
-        while number < 5:
+        while number < 20:
             blockChain = self.threads[0].getBlockchain()
             #rotate through all the persons
             newOwner = self.persons[randint(0, len(self.persons) - 1)]
